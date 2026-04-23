@@ -1,0 +1,11 @@
+---
+# handlers file for grafana
+#
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: restart grafana
+  systemd:
+    name: "{{ grafana_container_name }}"
+    state: restarted

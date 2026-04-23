@@ -1,0 +1,26 @@
+---
+# defaults file for grafana
+# Vars for image pulling from docker hub
+grafana_image: "grafana/grafana"
+grafana_image_tag: "10.4.0"
+grafana_image_full: "{{ grafana_image }}:{{ grafana_image_tag }}"
+grafana_port: 3000
+
+grafana_dir: /opt/grafana/
+grafana_data_dir: "{{ grafana_dir }}data"
+grafana_config_dir: "{{ grafana_dir }}config"
+grafana_plugins_dir: "{{ grafana_dir }}plugins"
+
+grafana_uid: 472
+grafana_gid: 0
+
+# Vars for docker
+grafana_container_name: grafana
+grafana_docker_network: monitoring
+grafana_restart_policy: always
+
+# Grafana Settings
+grafana_admin_user: admin
+grafana_admin_password: admin
+grafana_anonymous_enabled: true
+grafana_anonymous_org_role: Viewer

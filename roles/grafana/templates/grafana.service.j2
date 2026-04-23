@@ -1,0 +1,36 @@
+[Unit]
+Description=Grafana container
+Requires=docker.service
+After=docker.service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Restart={{ grafana_restart_policy }}
+RestartSec=10
+TimeoutStopSec=30
+KillMode=mixed
+
+# Cleaning before start
+ExecStartPre=-/bin/sh -c "/usr/bin/docker inspect {{ grafana_docker_network }} >/dev/null 2>&1 || /usr/bin/docker network create {{ grafana_docker_network }}"
+ExecStartPre=-/usr/bin/docker stop {{ grafana_container_name }}
+ExecStartPre=-/usr/bin/docker rm {{ grafana_container_name }}
+ExecStartPre=-/usr/bin/docker pull {{ grafana_image_full }}
+
+
+# Main start
+ExecStart=/usr/bin/docker run \
+  --name {{ grafana_container_name }} \
+  --restart=no \
+  --user={{ grafana_uid }}:{{ grafana_gid }} \
+  --publish={{ grafana_port }}:3000 \
+  --volume={{ grafana_data_dir }}:/var/lib/grafana \
+  --volume={{ grafana_config_dir }}:/etc/grafana \
+  --volume={{ grafana_plugins_dir }}:/var/lib/grafana/plugins \
+  --network={{ grafana_docker_network }} \
+  {{ grafana_image_full }}
+
+ExecStop=/usr/bin/docker stop -t 10 {{ grafana_container_name }}
+
+[Install]
+WantedBy=multi-user.target

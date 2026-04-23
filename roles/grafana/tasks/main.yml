@@ -1,0 +1,73 @@
+---
+# tasks file for grafana
+- name: create grafana dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ grafana_data_dir }}"
+    - "{{ grafana_config_dir }}"
+    - "{{ grafana_plugins_dir }}"
+  tags:
+    - grafana
+    - grafana_dirs
+    - grafana_install
+
+- name: setup grafana.ini conf
+  template:
+    src: grafana.ini.j2
+    dest: "{{ grafana_config_dir }}/grafana.ini"
+    mode: '0644'
+  notify: restart grafana
+  tags:
+    - grafana
+    - grafana_install
+    - grafana_config
+
+- name: set up rules on dirs
+  file:
+    path: "{{ item }}"
+    owner: "{{ grafana_uid | string }}"
+    group: "{{ grafana_gid | string }}"
+    recurse: yes
+  loop:
+    - "{{ grafana_data_dir }}"
+    - "{{ grafana_plugins_dir }}"
+  tags:
+    - grafana
+    - grafana_install
+
+- name: setup rules on config
+  file:
+    path: "{{ grafana_config_dir }}/grafana.ini"
+    owner: "{{ grafana_uid | string }}"
+    group: "{{ grafana_gid | string }}"
+    mode: '0644'
+  tags:
+    - grafana
+    - grafana_install
+
+- name: start systemd unit for grafana
+  template:
+    src: grafana.service.j2
+    dest: "/etc/systemd/system/{{ grafana_container_name }}.service"
+    mode: '0644'
+  notify:
+    - reload systemd
+    - restart grafana
+  tags:
+    - grafana
+    - grafana_config
+    - grafana_install
+
+- name: start and enabled grafana
+  systemd:
+    name: "{{ grafana_container_name }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  tags:
+    - grafana
+    - grafana_service
+    - grafana_install

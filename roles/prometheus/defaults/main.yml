@@ -1,0 +1,33 @@
+---
+# defaults file for prometheus
+# Vars for pulling prometheus from Docker Hub   
+prometheus_image: "ubuntu/prometheus"
+prometheus_image_tag: "3.11-24.04_stable"
+prometheus_image_full: "{{ prometheus_image }}:{{ prometheus_image_tag }}"
+prometheus_port: 9090
+
+# Dirs for prometheus
+prometheus_dir: /opt/prometheus/
+prometheus_data_dir: "{{ prometheus_dir }}data"
+prometheus_config_dir: "{{ prometheus_dir }}config"
+
+# UID / GID
+prometheus_uid: 65534
+prometheus_gid: 65534
+
+# For prometheus container
+prometheus_container_name: prometheus
+prometheus_docker_network: monitoring
+prometheus_restart_policy: always
+
+# Prometheus settings
+prometheus_scape_interval: 15s
+prometheus_evaluation_interval: 15s
+prometheus_retention_time: 15d
+prometheus_retention_size: 0
+
+# Targets for scrape
+prometheus_targes:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:{{}}']

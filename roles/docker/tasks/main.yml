@@ -1,0 +1,47 @@
+---
+# tasks file for docker
+#
+- name: clean and update apt cache
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+  ignore_errors: yes
+
+- name: install dependencies
+  apt:
+    name: "{{ docker_dependencies }}"
+    state: "{{ docker_dependencies_state }}"
+    update_cache: yes
+
+- name: add gpg key
+  apt_key:
+    url: "{{ docker_apt_gpg_key}}"
+    state: "{{ docker_repo_state }}"
+
+- name: add docker repo to apt
+  apt_repository:
+    repo: deb "{{ docker_repo_url }}" bionic stable
+    state: "{{ docker_repo_state }}"
+
+- name: install docker
+  apt:
+    name: "{{ docker_packages }}"
+    state: "{{ docker_packages_state }}"
+    update_cache: yes
+
+- name: ensure docker running and enabled
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: ensure docker group exists
+  group:
+    name: docker
+    state: present
+
+- name: adding user to docker group
+  ansible.builtin.user:
+    name: "{{ monitoring_user }}"
+    groups: docker
+    append: yes

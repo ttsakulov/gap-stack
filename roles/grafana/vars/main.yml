@@ -1,0 +1,4 @@
+---
+# vars file for grafana
+grafana_port: 3000
+grafana_user: grafana

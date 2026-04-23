@@ -1,0 +1,18 @@
+---
+all:
+  vars:
+    ansible_user: timur
+    monitoring_user: timur
+  children:
+    # This is a group of servers that will have a GAP
+    monitoring-servers:
+      hosts:
+        mon-01:
+          ansible_host: 127.0.0.1
+          ansible_connection: local
+
+    # This is a group of target servers
+    target-servers:
+      hosts:
+        app-01:
+          ansible_host: 192.168.85.133
