@@ -30,4 +30,11 @@ prometheus_retention_size: 0
 prometheus_targes:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:{{}}']
+      - targets: ['localhost:{{ prometheus_port }}']
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+#  - job_name: 'node'
+#    static_configs:
+#      - targets:
+#        - 'app-01:9100'

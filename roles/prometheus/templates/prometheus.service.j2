@@ -1,0 +1,34 @@
+[Unit]
+Description=Prometheus container
+Requires=docker.service
+After=docker.service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Restart={{ prometheus_restart_policy }}
+RestartSec=10
+TimeoutStopSec=30
+KillMode=mixed
+
+# Cleaning before start
+ExecStartPre=-/usr/bin/docker inspect {{ prometheus_docker_network }}
+ExecStartPre=-/usr/bin/docker stop {{ prometheus_container_name }}
+ExecStartPre=-/usr/bin/docker rm {{ prometheus_container_name }}
+ExecStartPre=-/usr/bin/docker pull {{ prometheus_image_full }}
+
+# Main start
+ExecStart=/usr/bin/docker run \
+  --name {{ prometheus_container_name }} \
+  --restart=no \
+  --user={{ prometheus_uid }}:{{ prometheus_gid }} \
+  --publish={{ prometheus_port }}:9090 \
+  --volume={{ prometheus_data_dir }}:/prometheus \
+  --volume={{ prometheus_config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml:ro \
+  --network={{ prometheus_docker_network }} \
+  {{ prometheus_image_full }}
+
+ExecStop=/usr/bin/docker stop -t 10 {{ prometheus_container_name }}
+
+[Install]
+WantedBy=multi-user.target

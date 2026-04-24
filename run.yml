@@ -5,8 +5,16 @@
   roles: 
     - role: docker
 
+#- name: Install Node-Exporter
+#  hosts: target-servers
+#  become: true
+#  roles:
+#    - role: node-exporter
+
 - name: Install and run GAP
-  hosts: mon-01
+  hosts: monitoring-servers
   become: true
   roles:
     - role: grafana
+#    - role: prometheus
+#    - role: alertmaneger
