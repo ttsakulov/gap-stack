@@ -34,7 +34,9 @@ prometheus_targets:
   - job_name: 'grafana'
     static_configs:
       - targets: ['grafana:3000']
-#  - job_name: 'node'
+#  - job_name: 'node-exporter'
 #    static_configs:
 #      - targets:
-#        - 'app-01:9100'
+#{% for host in groups['target-servers'] %}
+#          - '{{ hostvars[host].ansible_host | default(host) }}:9100'
+#{% endfor %}
