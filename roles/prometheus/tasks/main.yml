@@ -1,2 +1,66 @@
 ---
 # tasks file for prometheus
+- name: create prometheus dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ prometheus_data_dir }}"
+    - "{{ prometheus_config_dir }}"
+  tags:
+    - prometheus_dirs
+    - prometheus_install
+
+- name: set prometheus.yml conf
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ prometheus_config_dir }}/prometheus.yml"
+    mode: '0644'
+  notify: restart prometheus
+  tags:
+    - prometheus_config
+    - prometheus_install
+
+- name: set rules on dirs
+  file:
+    path: "{{ item }}"
+    owner: "{{ prometheus_uid | string }}"
+    group: "{{ prometheus_gid | string }}"
+    recurse: yes
+  loop:
+    - "{{ prometheus_data_dir }}"
+    - "{{ prometheus_config_dir }}"
+  tags:
+    - prometheus_install
+
+- name: set rules on config
+  file:
+    path: "{{ prometheus_config_dir }}/prometheus.yml"
+    owner: "{{ prometheus_uid | string }}"
+    group: "{{ prometheus_gid | string }}"
+    mode: '0644'
+  tags:
+    - prometheus_install
+
+- name: start systemd unit prometheus
+  template:
+    src: prometheus.service.j2
+    dest: "/etc/systemd/system/{{ prometheus_container_name }}.service"
+    mode: '0644'
+  notify:
+    - reload systemd
+    - restart prometheus
+  tags:
+    - prometheus_service
+    - prometheus_install
+
+- name: start and enabled prometheus
+  systemd:
+    name: "{{ grafana_container_name }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  tags:
+    - prometheus_service
+    - prometheus_install

@@ -1,10 +1,10 @@
 global:
   scrape_interval: {{ prometheus_scrape_interval }}
-  evalution_interval: {{ prometheus_evaluation_interval }}
+  evaluation_interval: {{ prometheus_evaluation_interval }}
 
 scrape_configs:
 {% for job in prometheus_targets %}
-  - name: '{{ job.job_name }}'
+  - job_name: '{{ job.job_name }}'
     static_configs:
       - targets: {{ job.static_configs[0].targets | to_json }}
-{{% endfor %}}
+{% endfor %}

@@ -1,34 +1,48 @@
 ---
 # tasks file for docker
 #
+# Debian/Ubuntu
 - name: clean and update apt cache
   apt:
     update_cache: yes
     force_apt_get: yes
   ignore_errors: yes
+  when: ansible_os_family == "Debian"
 
 - name: install dependencies
   apt:
     name: "{{ docker_dependencies }}"
     state: "{{ docker_dependencies_state }}"
     update_cache: yes
+  when: ansible_os_family == "Debian"
 
 - name: add gpg key
   apt_key:
     url: "{{ docker_apt_gpg_key}}"
     state: "{{ docker_repo_state }}"
+  when: ansible_os_family == "Debian"
 
 - name: add docker repo to apt
   apt_repository:
     repo: deb "{{ docker_repo_url }}" bionic stable
     state: "{{ docker_repo_state }}"
+  when: ansible_os_family == "Debian"
 
-- name: install docker
+- name: install docker (Debian)
   apt:
     name: "{{ docker_packages }}"
     state: "{{ docker_packages_state }}"
     update_cache: yes
+  when: ansible_os_family == "Debian"
 
+# RHEL
+- name: install docker (RHEL)
+  ansible.builtin.dnf:
+    name: "{{ docker_packages }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+# Common to all OS
 - name: ensure docker running and enabled
   service:
     name: docker

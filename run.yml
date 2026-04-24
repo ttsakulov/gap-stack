@@ -16,5 +16,5 @@
   become: true
   roles:
     - role: grafana
-#    - role: prometheus
+    - role: prometheus
 #    - role: alertmaneger
