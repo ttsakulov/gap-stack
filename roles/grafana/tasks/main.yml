@@ -71,3 +71,48 @@
     - grafana
     - grafana_service
     - grafana_install
+
+# Stopping grafana service
+- name: stop grafana
+  systemd:
+    name: "{{ grafana_container_name }}"
+    state: stopped
+    enabled: no
+  tags:
+    - grafana_stop
+
+# Deleting grafana service without data
+- name: delete grafana container
+  command:
+    cmd: "docker rm -f {{ grafana_container_name }}"
+  register: remove_container # Set register on task
+  failed_when: false # If docker rm down with error, that task will continue to be executed
+  changed_when: remove_container.rc == 0
+  tags:
+    - grafana_remove
+
+- name: delete systemd unit grafana
+  file:
+    path: "/etc/systemd/system/{{ grafana_container_name }}.service"
+    state: absent
+  notify: reload systemd
+  tags:
+    - grafana_remove
+
+# This task works by analogy with "delete grafana container" task
+- name: delete grafana image
+  command:
+    cmd: "docker rmi {{ grafana_image_full }}"
+  register: remove_image
+  failed_when: false
+  changed_when: remove_image.rc == 0
+  tags:
+    - grafana_remove_image
+
+# Full removal
+- name: delete grafana dirs
+  file:
+    path: "{{ grafana_dir }}"
+    state: absent
+  tags:
+    - grafana_purge
