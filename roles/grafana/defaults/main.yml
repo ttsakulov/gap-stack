@@ -6,10 +6,16 @@ grafana_image_tag: "10.4.0"
 grafana_image_full: "{{ grafana_image }}:{{ grafana_image_tag }}"
 grafana_port: 3000
 
+# Dirs for grafana data, configs, plugins, dashboards and datasources
 grafana_dir: /opt/grafana/
 grafana_data_dir: "{{ grafana_dir }}data"
 grafana_config_dir: "{{ grafana_dir }}config"
 grafana_plugins_dir: "{{ grafana_dir }}plugins"
+grafana_provisioning_dir: "{{ grafana_config_dir }}/provisioning"
+grafana_dashboards_dir: "{{ grafana_provisioning_dir }}/dashboards"
+grafana_datasources_dir: "{{ grafana_provisioning_dir }}/datasources"
+grafana_dest_node_exporter: "{{ grafana_dashboards_dir }}/node-exporter-full.json"
+grafana_url_prometheus_datasource: http://prometheus:9090
 
 grafana_uid: 472
 grafana_gid: 0

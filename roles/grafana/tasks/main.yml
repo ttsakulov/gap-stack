@@ -9,8 +9,10 @@
     - "{{ grafana_data_dir }}"
     - "{{ grafana_config_dir }}"
     - "{{ grafana_plugins_dir }}"
+    - "{{ grafana_provisioning_dir }}"
+    - "{{ grafana_datasources_dir }}"
+    - "{{ grafana_dashboards_dir }}"
   tags:
-    - grafana
     - grafana_dirs
     - grafana_install
 
@@ -21,9 +23,8 @@
     mode: '0644'
   notify: restart grafana
   tags:
-    - grafana
-    - grafana_install
     - grafana_config
+    - grafana_install
 
 - name: set rules on dirs
   file:
@@ -35,7 +36,7 @@
     - "{{ grafana_data_dir }}"
     - "{{ grafana_plugins_dir }}"
   tags:
-    - grafana
+    - grafana_dirs
     - grafana_install
 
 - name: set rules on config
@@ -45,7 +46,47 @@
     group: "{{ grafana_gid | string }}"
     mode: '0644'
   tags:
-    - grafana
+    - grafana_config
+    - grafana_install
+
+# Grafana provisioning for automatization
+- name: set provisioning datasources
+  template:
+    src: datasources.yaml.j2
+    dest: "{{ grafana_datasources_dir }}/default.yaml"
+    mode: '0644'
+  tags:
+    - grafana_provisioning
+    - grafana_install
+
+- name: set provisioning dashboards
+  template:
+    src: dashboards.yaml.j2
+    dest: "{{ grafana_dashboards_dir }}/default.yaml"
+    mode: '0644'
+  tags:
+    - grafana_provisioning
+    - grafana_install
+
+- name: set rules on provisioning files
+  file:
+    path: "{{ grafana_provisioning_dir }}"
+    owner: "{{ grafana_uid | string }}"
+    group: "{{ grafana_gid | string }}"
+    recurse: yes
+    mode: u+rwX,g+rX,o+rX
+  tags:
+    - grafana_provisioning
+    - grafana_install
+
+- name: copy dashboard node-exporter-full
+  copy:
+    src: node-exporter-full.json
+    dest: "{{ grafana_dest_node_exporter }}"
+    mode: '0644'
+  notify: restart grafana
+  tags:
+    - grafana_provisioning
     - grafana_install
 
 - name: start systemd unit for grafana
@@ -57,7 +98,6 @@
     - reload systemd
     - restart grafana
   tags:
-    - grafana
     - grafana_config
     - grafana_install
 
