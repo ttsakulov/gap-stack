@@ -80,6 +80,7 @@
     enabled: no
   tags:
     - grafana_stop
+    - purge # Tag for full deleting GAP
     - never
 
 # Deleting grafana service without data
@@ -91,6 +92,7 @@
   changed_when: remove_container.rc == 0
   tags:
     - grafana_remove
+    - purge
     - never
 
 - name: delete systemd unit grafana
@@ -100,6 +102,7 @@
   notify: reload systemd
   tags:
     - grafana_remove
+    - purge
     - never
 
 # This task works by analogy with "delete grafana container" task
@@ -111,6 +114,7 @@
   changed_when: remove_image.rc == 0
   tags:
     - grafana_remove_image
+    - purge
     - never
 
 # Full removal
@@ -120,4 +124,5 @@
     state: absent
   tags:
     - grafana_purge
+    - purge
     - never

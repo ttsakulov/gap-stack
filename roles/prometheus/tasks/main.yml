@@ -64,3 +64,58 @@
   tags:
     - prometheus_service
     - prometheus_install
+
+# Stopping prometheus service
+- name: stop prometheus
+  systemd:
+    name: "{{ prometheus_container_name }}"
+    state: stopped
+    enabled: no
+  tags:
+    - prometheus_stop
+    - purge # tag for full deleting GAP
+    - never
+
+# Deleting prometheus service without data
+- name: delete prometheus container
+  command:
+    cmd: "docker rm -f {{ prometheus_container_name }}"
+  register: remove_container # Set register on task
+  failed_when: false # If docker rm down with error, that task will continue to be executed
+  changed_when: remove_container.rc == 0
+  tags:
+    - prometheus_remove
+    - purge
+    - never
+
+- name: delete systemd unit prometheus
+  file:
+    path: "/etc/systemd/system/{{ prometheus_container }}.service"
+    state: absent
+  notify: reload systemd
+  tags:
+    - prometheus_remove
+    - purge
+    - never
+
+# This task works by analogy with "delete prometheus container" task
+- name: delete prometheus image
+  command:
+    cmd: "docker rmi {{ prometheus_image_full }}"
+  register: remove_image
+  failed_when: false
+  changed_when: remove_image.rc == 0
+  tags:
+    - prometheus_remove_image
+    - purge
+    - never
+
+# Full removal
+- name: delete prometheus dirs
+  file:
+    path: "{{ prometheus_dir }}"
+    state: absent
+  tags:
+    - prometheus_purge
+    - purge
+    - never
