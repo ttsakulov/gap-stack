@@ -1,0 +1,21 @@
+global:
+  resolve_timeout: {{ alertmanager_resolve_timeout }}
+  smtp_smarthost: '{{ alertmanager_smtp_smarthost_ya }}'
+  smtp_from: '{{ alertmanager_email_from }}'
+  smtp_auth_username: '{{ alertmanager_email_from }}'
+  smtp_auth_password: 'alertmanager_email_password'
+  smtp_require_tls: false
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'email-yandex'
+
+receivers:
+  - name: 'email-yandex'
+    email_configs:
+      - to: '{{ alertmanager_email_to }}'
+        headers:
+          Subject: '[ALERT] {{ "{{" }} .GroupLabels.alertname {{ "}}" }}'

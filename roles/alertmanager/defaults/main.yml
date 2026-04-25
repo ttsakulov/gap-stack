@@ -1,2 +1,27 @@
 ---
 # defaults file for alertmanager
+# Vars for image pulling from docker hub
+alertmanager_image: "prom/alertmanager"
+alertmanager_image_tag: "v0.32.0"
+alertmanager_image_full: "{{ alertmanager_image }}:{{ alertmanager_image_tag }}"
+alertmanager_port: 9093
+
+# Dirs
+alertmanager_dir: /opt/alertmanager/
+alertmanager_data_dir: "{{ alertmanager_dir }}data"
+alertmanager_config_dir: "{{ alertmanager_dir }}config"
+
+# UID/GID (nobody)
+alertmanager_uid: 65534
+alertmanager_gid: 65534
+
+# Vars for docker
+alertmanager_container_name: alertmanager
+alertmanager_docker_network: monitoring
+alertmanager_restart_policy: always
+
+alertmanager_resolve_timeout: 5m
+alertmanager_smtp_smarthost_ya: smtp.yandex.ru:465
+alertmanager_email_from: "timur.tsakulov@yandex.ru"
+alertmanager_email_password: "fbxdfwflbokyfoia"
+alertmanager_email_to: "timur.tsakulov@yandex.ru"

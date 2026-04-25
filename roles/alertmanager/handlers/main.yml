@@ -1,2 +1,10 @@
 ---
 # handlers file for alertmanager
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: restart alertmanager
+  systemd:
+    name: "{{ alertmanager_container_name }}"
+    state: restarted

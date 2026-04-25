@@ -1,0 +1,6 @@
+---
+grafana_container_name: grafana
+prometheus_container_name: prometheus
+alertmanager_container_name: alertmanager
+alertmanager_port: 9093
+docker_network: monitoring

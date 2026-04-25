@@ -40,3 +40,5 @@ prometheus_targets:
 #{% for host in groups['target-servers'] %}
 #          - '{{ hostvars[host].ansible_host | default(host) }}:9100'
 #{% endfor %}
+#
+prometheus_rule_files: /etc/prometheus/rules/*.yml

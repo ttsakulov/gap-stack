@@ -2,6 +2,15 @@ global:
   scrape_interval: {{ prometheus_scrape_interval }}
   evaluation_interval: {{ prometheus_evaluation_interval }}
 
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "{{ alertmanager_container_name }}:{{ alertmanager_port }}"
+
+rule_files:
+  - "{{ prometheus_rule_files }}"
+
 scrape_configs:
 {% for job in prometheus_targets %}
   - job_name: '{{ job.job_name }}'

@@ -1,2 +1,123 @@
 ---
 # tasks file for alertmanager
+- name: create alertmanager dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ alertmanager_data_dir }}"
+    - "{{ alertmanager_config_dir }}"
+  tags:
+    - alertmanager_dirs
+    - alertmanager_install
+
+- name: set alertmanager.yml conf
+  template:
+    src: alertmanager.yml.j2
+    dest: "{{ alertmanager_config_dir }}/alertmanager.yml"
+    mode: '0644'
+  notify: restart alertmanager
+  tags:
+    - alertmanager_config
+    - alertmanager_install
+
+- name: set rules on dirs
+  file:
+    path: "{{ item }}"
+    owner: "{{ alertmanager_uid | string }}"
+    group: "{{ alertmanager_gid | string }}"
+    recurse: yes
+  loop:
+    - "{{ alertmanager_data_dir }}"
+    - "{{ alertmanager_config_dir }}"
+  tags:
+    - alertmanager_dirs
+    - prometheus_install
+
+- name: set rules on config
+  file:
+    path: "{{ alertmanager_config_dir }}/alertmanager.yml"
+    owner: "{{ alertmanager_uid | string }}"
+    group: "{{ alertmanager_gid | string }}"
+    mode: '0644'
+  tags:
+    - alertmanager_config
+    - alertmanager_install
+
+- name: start systemd unit alertmanager
+  template:
+    src: alertmanager.service.j2
+    dest: "/etc/systemd/system/{{ alertmanager_container_name }}.service"
+    mode: '0644'
+  notify:
+    - reload systemd
+    - restart alertmanager
+  tags:
+    - alertmanager_service
+    - alertmanager_install
+
+- name: start and enabled alertmanager
+  systemd:
+    name: "{{ alertmanager_container_name }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  tags:
+    - alertmanager_service
+    - alertmanager_install
+
+# Stopping alertmanager service
+- name: stop alertmanager
+  systemd:
+    name: "{{ alertmanager_container_name }}"
+    state: stopped
+    enabled: no
+  tags:
+    - alertmanager_stop
+    - purge # tag for full deleting GAP
+    - never
+
+# Deleting alertmanager service without data
+- name: delete alertmanager container
+  command:
+    cmd: "docker rm -f {{ alertmanager_container_name }}"
+  register: remove_container # Set register on task
+  failed_when: false # If docker rm down with error, that task will continue to be executed
+  changed_when: remove_container.rc == 0
+  tags:
+    - alertmanager_remove
+    - purge
+    - never
+
+- name: delete systemd unit alertmanager
+  file:
+    path: "/etc/systemd/system/{{ alertmanager_container }}.service"
+    state: absent
+  notify: reload systemd
+  tags:
+    - alertmanager_remove
+    - purge
+    - never
+
+# This task works by analogy with "delete alertmanager container" task
+- name: delete alertmanager image
+  command:
+    cmd: "docker rmi {{ alertmanager_image_full }}"
+  register: remove_image
+  failed_when: false
+  changed_when: remove_image.rc == 0
+  tags:
+    - alertmanager_remove_image
+    - purge
+    - never
+
+# Full removal
+- name: delete alertmanager dirs
+  file:
+    path: "{{ alertmanager_dir }}"
+    state: absent
+  tags:
+    - alertmanager_purge
+    - purge
+    - never

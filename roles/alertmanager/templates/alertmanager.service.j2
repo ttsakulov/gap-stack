@@ -1,0 +1,35 @@
+[Unit]
+Description=Alertmanager container
+Requires=docker.service
+After=docker.service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Restart={{ alertmanager_restart_policy }}
+RestartSec=10
+TimeoutStopSec=30
+KillMode=mixed
+
+# Cleaning before start
+ExecStartPre=-/usr/bin/docker inspect {{ alertmanager_docker_network }}"
+ExecStartPre=-/usr/bin/docker stop {{ alertmanager_container_name }}
+ExecStartPre=-/usr/bin/docker rm {{ alertmanager_container_name }}
+ExecStartPre=-/usr/bin/docker pull {{ alertmanager_image_full }}
+
+
+# Main start
+ExecStart=/usr/bin/docker run \
+  --name {{ alertmanager_container_name }} \
+  --restart=no \
+  --user={{ alertmanager_uid }}:{{ alertmanager_gid }} \
+  --publish={{ alertmanager_port }}:9093 \
+  --volume={{ alertmanager_data_dir }}:/alertmanager \
+  --volume={{ alertmanager_config_dir }}/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro \
+  --network={{ alertmanager_docker_network }} \
+  {{ alertmanager_image_full }}
+
+ExecStop=/usr/bin/docker stop -t 10 {{ alertmanager_container_name }}
+
+[Install]
+WantedBy=multi-user.target

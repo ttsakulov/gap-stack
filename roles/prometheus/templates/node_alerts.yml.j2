@@ -1,0 +1,20 @@
+groups:
+  - name: node
+    rules:
+      - alert: NodeDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Node {{ "{{" }} $labels.instance {{ "}}" }} not available"
+          description: "Node Exporter on {{ "{{" }} $labels.instance {{ "}}" }} doesn`t respond for more than 1 minute"
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High load CPU on {{ "{{" }} $labels.instance {{ "}}" }}"
+          description: "CPU used for {{ "{{" }} $value {{ "}}" }}% more than 5 minutes"
