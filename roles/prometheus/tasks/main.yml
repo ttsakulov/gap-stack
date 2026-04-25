@@ -101,7 +101,7 @@
 
 - name: delete systemd unit prometheus
   file:
-    path: "/etc/systemd/system/{{ prometheus_container }}.service"
+    path: "/etc/systemd/system/{{ prometheus_container_name }}.service"
     state: absent
   notify: reload systemd
   tags:
