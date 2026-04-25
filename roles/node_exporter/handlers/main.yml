@@ -1,2 +1,10 @@
 ---
 # handlers file for node_exporter
+- name: reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: restart node-exporter
+  systemd:
+    name: "{{ node_exporter_container_name }}"
+    state: restarted

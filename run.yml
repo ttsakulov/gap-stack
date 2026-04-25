@@ -5,11 +5,11 @@
   roles: 
     - role: docker
 
-#- name: Install Node-Exporter
-#  hosts: target-servers
-#  become: true
-#  roles:
-#    - role: node-exporter
+- name: Install Node-Exporter
+  hosts: target-servers
+  become: true
+  roles:
+    - role: node_exporter
 
 - name: Install and run GAP
   hosts: monitoring-servers

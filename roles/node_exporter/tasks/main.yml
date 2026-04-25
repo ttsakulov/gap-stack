@@ -1,2 +1,22 @@
 ---
 # tasks file for node_exporter
+- name: set systemd unit for node exporter
+  template:
+    src: node-exporter.service.j2
+    dest: "/etc/systemd/system/{{ node_exporter_container_name }}.service"
+    mode: '0644'
+  notify:
+    - reload systemd
+    - restart node-exporter
+  tags:
+    - node_exporter_install
+
+- name: start node exporter
+  systemd:
+    name: "{{ node_exporter_container_name }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  tags:
+    - node_exporter_install
+    - node_exporter_service

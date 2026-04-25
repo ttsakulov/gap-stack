@@ -1,0 +1,29 @@
+[Unit]
+Description={{ node_exporter_container_name }} container
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart={{ node_exporter_restart_policy }}
+RestartSec=10
+TimeoutStopSec=30
+
+ExecStartPre=-/usr/bin/docker stop {{ node_exporter_container_name }}
+ExecStartPre=-/usr/bin/docker rm {{ node_exporter_container_name }}
+ExecStartPre=-/usr/bin/docker pull {{ node_exporter_image_full }}
+
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --restart=no \
+  --net=host \
+  --pid=host \
+  --volume=/:/host:ro,rslave \
+  --name={{ node_exporter_container_name }} \
+  {{ node_exporter_image_full }} \
+  --path.rootfs=/host \
+  --collector.systemd
+
+ExecStop=/usr/bin/docker stop -t 10 {{ node_exporter_container_name }}
+
+[Install]
+WantedBy=multi-user.target
