@@ -3,7 +3,7 @@ global:
   smtp_smarthost: '{{ alertmanager_smtp_smarthost_ya }}'
   smtp_from: '{{ alertmanager_email_from }}'
   smtp_auth_username: '{{ alertmanager_email_from }}'
-  smtp_auth_password: 'alertmanager_email_password'
+  smtp_auth_password: '{{ alertmanager_email_password }}'
   smtp_require_tls: false
 
 route:
