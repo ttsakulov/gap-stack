@@ -24,7 +24,7 @@ ExecStart=/usr/bin/docker run \
   --user={{ prometheus_uid }}:{{ prometheus_gid }} \
   --publish={{ prometheus_port }}:9090 \
   --volume={{ prometheus_data_dir }}:/prometheus \
-  --volume={{ prometheus_config_dir }}/prometheus.yml:/etc/prometheus/prometheus.yml:ro \
+  --volume={{ prometheus_config_dir }}:/etc/prometheus \
   --network={{ prometheus_docker_network }} \
   {{ prometheus_image_full }}
 
