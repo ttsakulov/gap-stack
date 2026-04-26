@@ -17,3 +17,12 @@ scrape_configs:
     static_configs:
       - targets: {{ job.static_configs[0].targets | to_json }}
 {% endfor %}
+
+{% if groups['target-servers'] is defined and groups['target-servers'] | length > 0 %}
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets:
+{% for host in groups['target-servers'] %}
+          - '{{ hostvars[host].ansible_host | default(host) }}:9100'
+{% endfor %}
+{% endif %}

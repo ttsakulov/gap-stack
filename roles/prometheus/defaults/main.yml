@@ -34,9 +34,5 @@ prometheus_targets:
   - job_name: 'grafana'
     static_configs:
       - targets: ['grafana:3000']
-  - job_name: 'node-exporter'
-    static_configs:
-      # For tests
-      - targets: ['172.19.0.1:9100', 'app-01:9100']
 
 prometheus_rule_files: /etc/prometheus/rules/*.yml
