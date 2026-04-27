@@ -17,15 +17,15 @@ grafana_datasources_dir: "{{ grafana_provisioning_dir }}/datasources"
 grafana_dest_node_exporter: "{{ grafana_dashboards_dir }}/node-exporter-full.json"
 grafana_url_prometheus_datasource: http://prometheus:9090
 
+# UID / GID for starting grafana container
 grafana_uid: 472
 grafana_gid: 0
 
 # Vars for docker
 grafana_container_name: grafana
-grafana_docker_network: monitoring
 grafana_restart_policy: always
 
-# Grafana Settings
+# Grafana Settings on web interface
 grafana_admin_user: admin
 grafana_admin_password: admin
 grafana_anonymous_enabled: true

@@ -74,7 +74,7 @@
     owner: "{{ grafana_uid | string }}"
     group: "{{ grafana_gid | string }}"
     recurse: yes
-    mode: u+rwX,g+rX,o+rX
+    mode: u+rwX,g+rX,o+rX # this using - without X(dir exec) dashboard doesn`t use in container
   tags:
     - grafana_provisioning
     - grafana_install

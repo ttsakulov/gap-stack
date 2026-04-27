@@ -17,7 +17,6 @@ alertmanager_gid: 65534
 
 # Vars for docker
 alertmanager_container_name: alertmanager
-alertmanager_docker_network: monitoring
 alertmanager_restart_policy: always
 
 alertmanager_resolve_timeout: 5m

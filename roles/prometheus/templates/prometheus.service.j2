@@ -12,7 +12,7 @@ TimeoutStopSec=30
 KillMode=mixed
 
 # Cleaning before start
-ExecStartPre=-/usr/bin/docker inspect {{ prometheus_docker_network }}
+ExecStartPre=-/usr/bin/docker inspect {{ docker_network }}
 ExecStartPre=-/usr/bin/docker stop {{ prometheus_container_name }}
 ExecStartPre=-/usr/bin/docker rm {{ prometheus_container_name }}
 ExecStartPre=-/usr/bin/docker pull {{ prometheus_image_full }}
@@ -25,7 +25,7 @@ ExecStart=/usr/bin/docker run \
   --publish={{ prometheus_port }}:9090 \
   --volume={{ prometheus_data_dir }}:/prometheus \
   --volume={{ prometheus_config_dir }}:/etc/prometheus \
-  --network={{ prometheus_docker_network }} \
+  --network={{ docker_network }} \
   {{ prometheus_image_full }}
 
 ExecStop=/usr/bin/docker stop -t 10 {{ prometheus_container_name }}

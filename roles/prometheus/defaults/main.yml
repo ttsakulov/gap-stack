@@ -17,7 +17,6 @@ prometheus_gid: 65534
 
 # For prometheus container
 prometheus_container_name: prometheus
-prometheus_docker_network: monitoring
 prometheus_restart_policy: always
 
 # Prometheus settings

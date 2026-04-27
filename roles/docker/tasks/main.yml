@@ -1,7 +1,7 @@
 ---
 # tasks file for docker
 #
-# Debian/Ubuntu
+# ========= Debian/Ubuntu =========
 - name: clean and update apt cache
   apt:
     update_cache: yes
@@ -35,12 +35,16 @@
     update_cache: yes
   when: ansible_os_family == "Debian"
 
-# RHEL
+# ========= ========= =========
+
+# ========= RHEL =========
 - name: install docker (RHEL)
   ansible.builtin.dnf:
     name: "{{ docker_packages }}"
     state: present
   when: ansible_os_family == "RedHat"
+
+# ======= ======== =======
 
 # Common to all OS
 - name: ensure docker running and enabled
