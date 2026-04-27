@@ -32,6 +32,6 @@ prometheus_targets:
       - targets: ['localhost:{{ prometheus_port }}']
   - job_name: 'grafana'
     static_configs:
-      - targets: ['grafana:3000']
+      - targets: ['{{ grafana_container_name }}:3000']
 
 prometheus_rule_files: /etc/prometheus/rules/*.yml
