@@ -27,6 +27,6 @@ grafana_restart_policy: always
 
 # Grafana Settings on web interface
 grafana_admin_user: admin
-grafana_admin_password: admin
+grafana_admin_password: "{{ vault_grafana_admin_password }}"
 grafana_anonymous_enabled: true
 grafana_anonymous_org_role: Viewer
