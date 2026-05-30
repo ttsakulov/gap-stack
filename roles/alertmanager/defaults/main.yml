@@ -17,10 +17,11 @@ alertmanager_gid: 65534
 
 # Vars for docker
 alertmanager_container_name: alertmanager
+alertmanager_docker_network: monitoring
 alertmanager_restart_policy: always
 
 alertmanager_resolve_timeout: 5m
 alertmanager_smtp_smarthost_ya: smtp.yandex.ru:465
 alertmanager_email_from: "timur.tsakulov@yandex.ru"
-alertmanager_email_password: "{{ vault_alertmanager_email_password }}"
+alertmanager_email_password: tbevefpwoasmcszj
 alertmanager_email_to: "timur.tsakulov@yandex.ru"

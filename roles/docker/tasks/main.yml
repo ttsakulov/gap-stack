@@ -2,49 +2,67 @@
 # tasks file for docker
 #
 # ========= Debian/Ubuntu =========
-- name: clean and update apt cache
-  apt:
-    update_cache: yes
-    force_apt_get: yes
-  ignore_errors: yes
-  when: ansible_os_family == "Debian"
+- name: check if docker is already installed
+  command: docker --version
+  register: docker_check
+  failed_when: false
+  changed_when: false
 
-- name: install dependencies
-  apt:
-    name: "{{ docker_dependencies }}"
-    state: "{{ docker_dependencies_state }}"
-    update_cache: yes
-  when: ansible_os_family == "Debian"
+- name: skip docker installation
+  debug:
+    msg: "Docker is already installed, skipping..."
+  when: docker_check.rc == 0
 
-- name: add gpg key
-  apt_key:
-    url: "{{ docker_apt_gpg_key}}"
-    state: "{{ docker_repo_state }}"
-  when: ansible_os_family == "Debian"
+- name: install docker (debian family)
+  block:
+    - name: install dependencies
+      apt:
+        name: "{{ docker_dependencies }}"
+        state: "{{ docker_dependencies_state }}"
+        update_cache: yes
+      retries: 3
+      delay: 5
 
-- name: add docker repo to apt
-  apt_repository:
-    repo: deb "{{ docker_repo_url }}" bionic stable
-    state: "{{ docker_repo_state }}"
-  when: ansible_os_family == "Debian"
+    - name: create keyrings directory
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
 
-- name: install docker (Debian)
-  apt:
-    name: "{{ docker_packages }}"
-    state: "{{ docker_packages_state }}"
-    update_cache: yes
-  when: ansible_os_family == "Debian"
+    - name: add docker gpg key
+      get_url:
+        url: "{{ docker_apt_gpg_key}}"
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+      retries: 3
+      delay: 5
 
-# ========= ========= =========
+    - name: add docker repo
+      apt_repository:
+        repo: "deb [arch={{ ansible_architecture | replace('x86_64', 'amd64') | replace('aarch64', 'arm64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: "{{ docker_repo_state }}"
+        update_cache: yes
+      retries: 3
+      delay: 5
+
+    - name: install docker packages
+      apt:
+        name: "{{ docker_packages }}"
+        state: "{{ docker_packages_state }}"
+        update_cache: yes
+      retries: 3
+      delay: 5
+
+  when:
+    - ansible_facts['os_family'] == "Debian"
+    - docker_check.rc != 0
 
 # ========= RHEL =========
 - name: install docker (RHEL)
   ansible.builtin.dnf:
     name: "{{ docker_packages }}"
     state: present
-  when: ansible_os_family == "RedHat"
-
-# ======= ======== =======
+  when: ansible_facts['os_family'] == "RedHat"
 
 # Common to all OS
 - name: ensure docker running and enabled
@@ -59,7 +77,14 @@
     state: present
 
 - name: adding user to docker group
-  ansible.builtin.user:
+  user:
     name: "{{ monitoring_user }}"
     groups: docker
     append: yes
+  notify: restart docker
+
+- name: restart docker service
+  systemd:
+    name: docker
+    state: restarted
+    daemon_reload: yes

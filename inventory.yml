@@ -14,8 +14,6 @@ all:
     # This is a group of target servers
     target-servers:
       hosts:
-        app-01:
-          ansible_host: 192.168.85.133
         # For test  
         app-01:
           ansible_host: 127.0.0.1
